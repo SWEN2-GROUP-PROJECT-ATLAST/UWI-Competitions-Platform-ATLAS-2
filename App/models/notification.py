@@ -1,10 +1,9 @@
 from App.database import db
 
 class Notification(db.Model):
-    __tablename__ = 'notification'
     
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     message = db.Column(db.String, nullable=False)
     
     def __init__(self, student_id, message):
@@ -18,11 +17,7 @@ class Notification(db.Model):
             "notification" : self.message
       }
 
-    def to_Dict(self):
-      return {
-            "ID" : self.id,
-            "Notification" : self.message
-      }
+    
   
     def __repr__(self):
       return f'<Notification {self.id} : {self.message}>'
