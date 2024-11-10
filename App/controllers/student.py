@@ -59,11 +59,9 @@ def display_student_info(username):
     else:
         competitions = []
         
-        for team in student.teams:
-            team_comps = CompetitionTeam.query.filter_by(team_id=team.id).all()
-            for comp_team in team_comps:
-                comp = Competition.query.filter_by(id=comp_team.comp_id).first()
-                competitions.append(comp.name)
+        for team in student.competition_teams:
+            comp = Competition.query.filter_by(id=team.comp_id).first()
+            competitions.append(comp.name)
 
         profile_info = {
             "profile" : student.get_json(),
@@ -79,66 +77,66 @@ def display_notifications(username):
         print(f'{username} does not exist!')
         return None
     else:
-        return {"notifications":[notification.to_Dict() for notification in student.notifications]}
+        return {"notifications":[notification.get_json() for notification in student.notifications]}
 
 def update_rankings():
     students = get_all_students()
     
-    students.sort(key=lambda x: (x.rating_score, x.comp_count), reverse=True)
+    students.sort(key=lambda x: (x.rating), reverse=True)
 
     leaderboard = []
     count = 1
     
-    curr_high = students[0].rating_score
+    curr_high = students[0].rating
     curr_rank = 1
         
     for student in students:
-        if curr_high != student.rating_score:
+        if curr_high != student.rating:
             curr_rank = count
-            curr_high = student.rating_score
+            curr_high = student.rating
 
-        if student.comp_count != 0:
-            leaderboard.append({"placement": curr_rank, "student": student.username, "rating score":student.rating_score})
-            count += 1
         
-            student.curr_rank = curr_rank
-            if student.prev_rank == 0:
-                message = f'RANK : {student.curr_rank}. Congratulations on your first rank!'
-            elif student.curr_rank == student.prev_rank:
-                message = f'RANK : {student.curr_rank}. Well done! You retained your rank.'
-            elif student.curr_rank < student.prev_rank:
-                message = f'RANK : {student.curr_rank}. Congratulations! Your rank has went up.'
-            else:
-                message = f'RANK : {student.curr_rank}. Oh no! Your rank has went down.'
-            student.prev_rank = student.curr_rank
-            notification = Notification(student.id, message)
-            student.notifications.append(notification)
+        leaderboard.append({"placement": curr_rank, "student": student.username, "rating score":student.rating})
+        count += 1
+        
+        student.curr_rank = curr_rank
+        if student.prev_rank == 0:
+            message = f'RANK : {student.curr_rank}. Congratulations on your first rank!'
+        elif student.curr_rank == student.prev_rank:
+            message = f'RANK : {student.curr_rank}. Well done! You retained your rank.'
+        elif student.curr_rank < student.prev_rank:
+            message = f'RANK : {student.curr_rank}. Congratulations! Your rank has went up.'
+        else:
+            message = f'RANK : {student.curr_rank}. Oh no! Your rank has went down.'
+        student.prev_rank = student.curr_rank
+        notification = Notification(student.id, message)
+        student.notifications.append(notification)
 
-            try:
-                db.session.add(student)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
+        try:
+            db.session.add(student)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
 
     return leaderboard
 
 def display_rankings():
     students = get_all_students()
 
-    students.sort(key=lambda x: (x.rating_score, x.comp_count), reverse=True)
+    students.sort(key=lambda x: (x.rating), reverse=True)
 
     leaderboard = []
     count = 1
-    curr_high = students[0].rating_score
+    curr_high = students[0].rating
     curr_rank = 1
         
     for student in students:
-        if curr_high != student.rating_score:
+        if curr_high != student.rating:
             curr_rank = count
-            curr_high = student.rating_score
+            curr_high = student.rating
 
         if student.comp_count != 0:
-            leaderboard.append({"placement": curr_rank, "student": student.username, "rating score":student.rating_score})
+            leaderboard.append({"placement": curr_rank, "student": student.username, "rating score":student.rating})
             count += 1
 
     print("Rank\tStudent\tRating Score")

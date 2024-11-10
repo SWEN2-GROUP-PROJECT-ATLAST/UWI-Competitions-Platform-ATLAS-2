@@ -1,5 +1,5 @@
 from App.database import db
-from App.models import Competition, Moderator, CompetitionTeam, Team, Student#, Student, Admin, competition_student
+from App.models import Competition, Moderator, CompetitionTeam, CompetitionModerator, Student#, Student, Admin, competition_student
 from datetime import datetime
 
 def create_competition(mod_name, comp_name, date, location, level, max_score):
@@ -11,8 +11,9 @@ def create_competition(mod_name, comp_name, date, location, level, max_score):
     mod = Moderator.query.filter_by(username=mod_name).first()
     if mod:
         newComp = Competition(name=comp_name, date=datetime.strptime(date, "%d-%m-%Y"), location=location, level=level, max_score=max_score)
+        
         try:
-            newComp.add_mod(mod)
+            newComp.add_mod(mod.id)
             db.session.add(newComp)
             db.session.commit()
             print(f'New Competition: {comp_name} created!')
@@ -52,7 +53,7 @@ def display_competition_results(name):
         return []
     else:
         comp_teams = CompetitionTeam.query.filter_by(comp_id=comp.id).all()
-        comp_teams.sort(key=lambda x: x.points_earned, reverse=True)
+        comp_teams.sort(key=lambda x: x.result.score, reverse=True)
 
         leaderboard = []
         count = 1
@@ -64,8 +65,8 @@ def display_competition_results(name):
                 curr_rank = count
                 curr_high = comp_team.points_earned
 
-            team = Team.query.filter_by(id=comp_team.team_id).first()
-            leaderboard.append({"placement": curr_rank, "team": team.name, "members" : [student.username for student in team.students], "score":comp_team.points_earned})
+           
+            leaderboard.append({"placement": curr_rank, "team": comp_team.name, "members" : [student.username for student in comp_team.members], "score":comp_team.result.score})
             count += 1
         
         return leaderboard

@@ -1,13 +1,21 @@
 from App.database import db
-from App.models import Team, Competition, Student, Moderator
+from App.models import CompetitionTeam, Competition, Student, Moderator,TeamMember
 
-def create_team(team_name, students):
-    team = Team(name=team_name)
+def create_team(comp_name,team_name, students):
+    competiton = Competition.query.filter_by(name=comp_name).first()
+    if not competiton:
+        return None
+
+    team = CompetitionTeam(comp_id=competiton.id,name=team_name)
+    competition_team = CompetitionTeam.query.filter_by(comp_id=competiton.id,name=team_name).first()
+    if  competition_team:
+        return None
+
     count = 0
     for s in students:
         stud = Student.query.filter_by(username=s).first()
         if stud:
-            team.add_student(stud)
+            team = TeamMember(student_id=stud.id,comp_team_id=team.id)
         else:
             count += 1
             print(f'{s} was not found!')
@@ -26,16 +34,16 @@ def create_team(team_name, students):
             return None
 
 def get_team_by_name(name):
-    return Team.query.filter_by(name=name).first()
+    return CompetitionTeam.query.filter_by(name=name).first()
 
 def get_team(id):
-    return Team.query.get(id)
+    return CompetitionTeam.query.get(id)
 
 def get_all_teams():
-    return Team.query.all()
+    return CompetitionTeam.query.all()
 
 def get_all_teams_json():
-    teams = Team.query.all()
+    teams = CompetitionTeam.query.all()
 
     if not teams:
         return []
@@ -43,11 +51,11 @@ def get_all_teams_json():
         return [team.get_json() for team in teams]
     
 def find_team(team_name, students):
-    teams = Team.query.filter_by(name=team_name).all()
+    teams = CompetitionTeam.query.filter_by(name=team_name).all()
     
     for team in teams:
         team_stud = []
-        for stud in team.students:
+        for stud in team.members:
             team_stud.append(stud.username)
         
         if set(team_stud) == set(students):
@@ -55,46 +63,7 @@ def find_team(team_name, students):
 
     return None
 
-def add_team(mod_name, comp_name, team_name, students):
-    mod = Moderator.query.filter_by(username=mod_name).first()
-    comp = Competition.query.filter_by(name=comp_name).first()
-    
-    if not mod:
-        print(f'Moderator: {mod_name} not found!')
-        return None
-    elif not comp:
-        print(f'Competition: {comp_name} not found!')
-        return None
-    elif comp.confirm:
-        print(f'Results for {comp_name} has already been finalized!')
-        return None
-    elif mod not in comp.moderators:
-        print(f'{mod_name} is not authorized to add teams for {comp_name}!')
-        return None
-    else:
-        team = find_team(team_name, students)
 
-        if team:
-            return comp.add_team(team)
-        
-        comp_students = []
-        
-        for team in comp.teams:
-            for stud in team.students:
-                comp_students.append(stud.username)
-        
-        for stud in students:
-            if stud in comp_students:
-                print(f'{stud} is already registered for {comp_name}!')
-                print(f'Team was not created!')
-                return None
-        
-        team = create_team(team_name, students)
-        
-        if team:
-            return comp.add_team(team)
-        else:
-            return None
 
 """
 def add_results(mod_name, comp_name, team_name, students, score):

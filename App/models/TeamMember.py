@@ -5,7 +5,7 @@ class TeamMember(db.Model):
 
     id = db.Column(db.Integer,primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    comp_team_id = db.Column(db.Integer,db.ForeignKey('competition_team'), nullable=False)
+    comp_team_id = db.Column(db.Integer,db.ForeignKey('competition_team.id'), nullable=False)
 
 
     def __init__(self,student_id,comp_team_id):

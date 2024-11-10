@@ -7,7 +7,7 @@ class Student(User):
     curr_rank = db.Column(db.Integer, nullable=False, default=0)
     prev_rank = db.Column(db.Integer, nullable=False, default=0)
     notifications = db.relationship('Notification',backref='student',lazy=True)
-    competition_teams = db.relationship('CompetitionTeam',secondary='team_member')
+    competition_teams = db.relationship('CompetitionTeam',secondary='team_member',backref=db.backref('members',lazy=True))
     __mapper_args__ = {
         'polymorphic_identity': 'student'
     }
@@ -21,9 +21,9 @@ class Student(User):
         return {
             "id": self.id,
             "username": self.username,
-            "rating_score": self.rating_score,
-            "comp_count" : self.comp_count,
-            "curr_rank" : self.curr_rank
+            "rating_score": self.rating,
+            "curr_rank" : self.curr_rank,
+            'prev_rank':self.prev_rank
         }
 
  

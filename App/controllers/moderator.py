@@ -1,5 +1,5 @@
 from App.database import db
-from App.models import Moderator, Competition, Team, CompetitionTeam
+from App.models import Moderator, Competition, CompetitionResult, CompetitionTeam
 
 def create_moderator(username, password):
     mod = get_moderator_by_username(username)
@@ -50,7 +50,7 @@ def update_moderator(id, username):
     print("ID: {id} does not exist!")
     return None
 
-def add_mod(mod1_name, comp_name, mod2_name):
+def add_moderatr_to_competition(mod1_name, comp_name, mod2_name):
     mod1 = Moderator.query.filter_by(username=mod1_name).first()
     comp = Competition.query.filter_by(name=comp_name).first()
     mod2 = Moderator.query.filter_by(username=mod2_name).first()
@@ -70,41 +70,37 @@ def add_mod(mod1_name, comp_name, mod2_name):
     else:
         return comp.add_mod(mod2)
                 
-def add_results(mod_name, comp_name, team_name, score):
-    mod = Moderator.query.filter_by(username=mod_name).first()
-    comp = Competition.query.filter_by(name=comp_name).first()
-    teams = Team.query.filter_by(name=team_name).all()
-
-    if not mod:
-        print(f'{mod_name} was not found!')
+def add_result(moderator_name, competition_name, team_name, score):
+    # Step 1: Validate the moderator
+    moderator = get_moderator_by_username(moderator_name)
+    if not moderator:
         return None
-    else:
-        if not comp:
-            print(f'{comp_name} was not found!')
-            return None
-        elif comp.confirm:
-            print(f'Results for {comp_name} have already been finalized!')
-            return None
-        elif mod not in comp.moderators:
-            print(f'{mod_name} is not authorized to add results for {comp_name}!')
-            return None
-        else:
-            for team in teams:
-                comp_team = CompetitionTeam.query.filter_by(comp_id=comp.id, team_id=team.id).first()
 
-                if comp_team:
-                    comp_team.points_earned = score
-                    comp_team.rating_score = (score/comp.max_score) * 20 * comp.level
-                    try:
-                        db.session.add(comp_team)
-                        db.session.commit()
-                        print(f'Score successfully added for {team_name}!')
-                        return comp_team
-                    except Exception as e:
-                        db.session.rollback()
-                        print("Something went wrong!")
-                        return None
-    return None
+    # Step 2: Validate the competition
+    competition = Competition.query.filter_by(name=competition_name).first()
+    if not competition:
+        return None
+
+    # Step 3: Check if the moderator is associated with the competition
+    if moderator not in competition.moderators:
+        return None
+
+    # Step 4: Validate the team within the competition
+    team = CompetitionTeam.query.filter_by(name=team_name, comp_id=competition.id).first()
+    if not team:
+        return None
+
+    # Step 5: Check for existing result for the team in the same competition
+    existing_result = CompetitionResult.query.filter_by(comp_team_id=team.id).first()
+    if existing_result:
+        return None
+
+    # Step 6: Add the competition result
+    new_result = CompetitionResult(comp_team_id=team.id, score=score)
+    db.session.add(new_result)
+    db.session.commit()
+
+    return new_result
 
 
 def update_ratings(mod_name, comp_name):
@@ -117,9 +113,6 @@ def update_ratings(mod_name, comp_name):
     elif not comp:
         print(f'{comp_name} was not found!')
         return None
-    elif comp.confirm:
-        print(f'Results for {comp_name} has already been finalized!')
-        return None
     elif mod not in comp.moderators:
         print(f'{mod_name} is not authorized to add results for {comp_name}!')
         return None
@@ -130,17 +123,15 @@ def update_ratings(mod_name, comp_name):
         comp_teams = CompetitionTeam.query.filter_by(comp_id=comp.id).all()
 
         for comp_team in comp_teams:
-            team = Team.query.filter_by(id=comp_team.team_id).first()
 
-            for stud in team.students:
-                stud.rating_score = (stud.rating_score*stud.comp_count + comp_team.rating_score)/(stud.comp_count+1)
-                stud.comp_count += 1
+            for stud in comp_team.members:
+                stud.rating += round((comp_team.result.score / comp.max_score) * 10,0)
                 try:
                     db.session.add(stud)
                     db.session.commit()
                 except Exception as e:
                     db.session.rollback()
 
-        comp.confirm = True
+        
         print("Results finalized!")
         return True

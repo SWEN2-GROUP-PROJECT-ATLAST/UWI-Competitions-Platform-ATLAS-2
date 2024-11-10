@@ -1,7 +1,8 @@
 from App.database import db
 from datetime import datetime
 from .competition_moderator import *
-from .competition_team import *
+from .CompetitionTeam import *
+from .moderator import *
 
 class Competition(db.Model):
 
@@ -11,6 +12,7 @@ class Competition(db.Model):
     location = db.Column(db.String(120), nullable=False)
     level = db.Column(db.Float, default=1)
     max_score = db.Column(db.Integer, default=25)
+    confirm = db.Column(db.Boolean,default=True)
     teams = db.relationship('CompetitionTeam',backref='competition',lazy=True)
     moderators = db.relationship('Moderator',secondary='competition_moderator',backref=db.backref('competition',lazy=True))
 
@@ -21,6 +23,17 @@ class Competition(db.Model):
         self.level = level
         self.max_score = max_score
     
+    def add_mod(self,mod_id):
+        moderator = Moderator.query.get(mod_id)
+        if not moderator:
+            return False
+
+        if moderator not in self.moderators:
+            self.moderators.append(moderator)
+            db.session.commit()
+
+        return True
+
     
 
     def get_json(self):

@@ -5,7 +5,7 @@ class CompetitionModerator(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     comp_id = db.Column(db.Integer, db.ForeignKey('competition.id'), nullable=False)
-    mod_id =  db.Column(db.Integer, db.ForeignKey('moderator.id'), nullable=False)
+    mod_id =  db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __init__(self, comp_id, mod_id):
       self.comp_id = comp_id

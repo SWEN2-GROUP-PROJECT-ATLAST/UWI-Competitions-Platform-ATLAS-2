@@ -434,7 +434,7 @@ class IntegrationTests(unittest.TestCase):
       mod1 = create_moderator("debra", "debrapass")
       mod2 = create_moderator("robert", "robertpass")
       comp = create_competition(mod1.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
-      assert add_mod(mod1.username, comp.name, mod2.username) != None
+      assert add_moderatr_to_competition(mod1.username, comp.name, mod2.username) != None
        
     def test2_add_mod(self):
       db.drop_all()
@@ -443,7 +443,7 @@ class IntegrationTests(unittest.TestCase):
       mod2 = create_moderator("robert", "robertpass")
       mod3 = create_moderator("raymond", "raymondpass")
       comp = create_competition(mod1.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
-      assert add_mod(mod2.username, comp.name, mod3.username) == None
+      assert add_moderatr_to_competition(mod2.username, comp.name, mod3.username) == None
     
     def test_student_list(self):
       db.drop_all()
