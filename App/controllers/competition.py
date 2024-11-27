@@ -72,3 +72,7 @@ def display_competition_results(name):
             count += 1
         
         return leaderboard
+
+def test_commit_kylan():
+    testString = "Kylan Test"
+    return testString
