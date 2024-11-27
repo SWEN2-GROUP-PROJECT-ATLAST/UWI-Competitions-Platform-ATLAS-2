@@ -14,7 +14,7 @@ class Competition(db.Model):
     max_score = db.Column(db.Integer, default=25)
     confirm = db.Column(db.Boolean,default=True)
     teams = db.relationship('CompetitionTeam',backref='competition',lazy=True)
-    moderators = db.relationship('Moderator',secondary='competition_moderator',backref=db.backref('competition',lazy=True))
+    moderators = db.relationship('Moderator',secondary='competition_moderator',backref=db.backref('competitions',lazy=True))
 
     def __init__(self, name, date, location, level, max_score):
         self.name = name
@@ -30,6 +30,7 @@ class Competition(db.Model):
 
         if moderator not in self.moderators:
             self.moderators.append(moderator)
+            db.session.add(self)
             db.session.commit()
 
         return True

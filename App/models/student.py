@@ -9,9 +9,8 @@ class Student(User):
     notifications = db.relationship('Notification',backref='student',lazy=True)
     competition_teams = db.relationship('CompetitionTeam',secondary='team_member',backref=db.backref('members',lazy=True))
     __mapper_args__ = {
-        'polymorphic_identity': 'student'
+      'polymorphic_identity': 'student',
     }
-
     def __init__(self, username, password):
         super().__init__(username, password)
 

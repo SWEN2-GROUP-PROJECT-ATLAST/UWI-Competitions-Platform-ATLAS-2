@@ -10,12 +10,14 @@ def create_team(comp_name,team_name, students):
     competition_team = CompetitionTeam.query.filter_by(comp_id=competiton.id,name=team_name).first()
     if  competition_team:
         return None
-
+   
+    db.session.add(team)
     count = 0
     for s in students:
         stud = Student.query.filter_by(username=s).first()
         if stud:
-            team = TeamMember(student_id=stud.id,comp_team_id=team.id)
+            teamMember = TeamMember(student_id=stud.id,comp_team_id=team.id)
+            db.session.add(teamMember)
         else:
             count += 1
             print(f'{s} was not found!')
@@ -24,7 +26,6 @@ def create_team(comp_name,team_name, students):
         return None
     else:
         try:
-            db.session.add(team)
             db.session.commit()
             print(f'New Team: {team_name} created!')
             return team

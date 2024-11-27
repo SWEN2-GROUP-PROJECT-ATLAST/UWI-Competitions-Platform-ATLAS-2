@@ -3,7 +3,9 @@ from App.models import User
 
 class Moderator(User):
 
-    
+    __mapper_args__ = {
+      'polymorphic_identity': 'moderator',
+    }
     def __init__(self, username, password):
         super().__init__(username, password)
 

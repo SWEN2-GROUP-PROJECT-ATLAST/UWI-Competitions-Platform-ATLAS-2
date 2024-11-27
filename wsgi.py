@@ -50,12 +50,12 @@ def initialize():
             add_result(result['mod_name'], result['comp_name'], result['team_name'], int(result['score']))
 
     # Update ratings and rankings for competitions
-    with open("competitions.csv") as competitions_file:
-        reader = csv.DictReader(competitions_file)
-        for competition in reader:
-            if competition['comp_name'] != 'TopCoder':
-                update_ratings(competition['mod_name'], competition['comp_name'])
-        update_rankings()
+    # with open("competitions.csv") as competitions_file:
+    #     reader = csv.DictReader(competitions_file)
+    #     for competition in reader:
+    #         if competition['comp_name'] != 'TopCoder':
+    #             update_ratings(competition['mod_name'], competition['comp_name'])
+    #     update_rankings()
 
     print('Database initialized')
 

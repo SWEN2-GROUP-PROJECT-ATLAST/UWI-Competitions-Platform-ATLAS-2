@@ -1,5 +1,6 @@
 from App.database import db
 from App.models import Moderator, Competition, CompetitionResult, CompetitionTeam
+from sqlalchemy.exc import IntegrityError
 
 def create_moderator(username, password):
     mod = get_moderator_by_username(username)
@@ -8,12 +9,13 @@ def create_moderator(username, password):
         return None
 
     newMod = Moderator(username=username, password=password)
+
     try:
         db.session.add(newMod)
         db.session.commit()
-        print(f'New Moderator: {username} created!')
+        print(f'New Moderator: {newMod.username} created!')
         return newMod
-    except Exception as e:
+    except IntegrityError as e:
         db.session.rollback()
         print(f'Something went wrong creating {username}')
         return None
@@ -43,7 +45,7 @@ def update_moderator(id, username):
             db.session.commit()
             print("Username was updated!")
             return mod
-        except Exception as e:
+        except IntegrityError as e:
             db.session.rollback()
             print("Username was not updated!")
             return None
@@ -96,8 +98,10 @@ def add_result(moderator_name, competition_name, team_name, score):
         return None
 
     # Step 6: Add the competition result
+    team.hasResult = True
     new_result = CompetitionResult(comp_team_id=team.id, score=score)
     db.session.add(new_result)
+    db.session.add(team)
     db.session.commit()
 
     return new_result
@@ -129,7 +133,7 @@ def update_ratings(mod_name, comp_name):
                 try:
                     db.session.add(stud)
                     db.session.commit()
-                except Exception as e:
+                except IntegrityError as e:
                     db.session.rollback()
 
         
