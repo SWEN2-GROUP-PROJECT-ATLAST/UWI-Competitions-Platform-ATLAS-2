@@ -2,7 +2,7 @@ from App.database import db
 from App.models import Competition, Moderator, CompetitionTeam, CompetitionModerator, Student#, Student, Admin, competition_student
 from datetime import datetime
 from . import moderator
-
+"""jalesh test push"""
 def create_competition(mod_name, comp_name, date, location, level, max_score):
     comp = get_competition_by_name(comp_name)
     if comp:
