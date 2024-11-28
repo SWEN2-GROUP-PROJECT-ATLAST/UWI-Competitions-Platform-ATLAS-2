@@ -124,12 +124,12 @@ def update_ratings(mod_name, comp_name):
         print(f'No teams found. Results can not be confirmed!')
         return None
     else:
-        comp_teams = CompetitionTeam.query.filter_by(comp_id=comp.id).all()
+        comp_teams = CompetitionTeam.query.filter_by(comp_id=comp.id,hasResult = True).all()
 
         for comp_team in comp_teams:
 
             for stud in comp_team.members:
-                stud.rating += round((comp_team.result.score / comp.max_score) * 10,0)
+                stud.rating += round((comp_team.result[0].score / comp.max_score) * 10,0)
                 try:
                     db.session.add(stud)
                     db.session.commit()

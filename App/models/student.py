@@ -25,6 +25,14 @@ class Student(User):
             'prev_rank':self.prev_rank
         }
 
+    def comp_count(self):
+        count = 0
+        for team in self.competition_teams:
+            if team.hasResult == True:
+                count += 1
+            
+        return count
+    
  
 
     def __repr__(self):
