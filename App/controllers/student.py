@@ -1,5 +1,5 @@
 from App.database import db
-from App.models import Student, Competition, Notification, CompetitionTeam
+from App.models import Student, Competition, Notification, CompetitionTeam, RankHistory
 
 def create_student(username, password):
     student = get_student_by_username(username)
