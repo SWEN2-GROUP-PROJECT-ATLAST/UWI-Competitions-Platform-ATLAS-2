@@ -79,6 +79,7 @@ def display_notifications(username):
     else:
         return {"notifications":[notification.get_json() for notification in student.notifications]}
 
+"""
 def update_rankings():
     students = get_all_students()
     
@@ -119,6 +120,69 @@ def update_rankings():
             db.session.rollback()
 
     return leaderboard
+"""
+def update_rankings():
+    students = get_all_students()
+    
+    students.sort(key=lambda x: (x.rating), reverse=True)
+
+    leaderboard = []
+    count = 1
+    
+    curr_high = students[0].rating
+    curr_rank = 1
+    latest_rank = (
+            RankHistory.query
+            .filter_by(student_id=students[0].id)  # Filter for the specific student
+            .order_by(RankHistory.date.desc())  # Order by the timestamp in descending order
+            .first()  # Fetch the latest record
+        )
+    if latest_rank.rank != curr_rank or latest_rank.rating != curr_high:
+        newRank = RankHistory(students[0].id,curr_rank,curr_high)
+        db.session.add(newRank)
+        db.session.commit()
+        
+    for student in students:
+        latest_rank = (
+            RankHistory.query
+            .filter_by(student_id=student.id)  # Filter for the specific student
+            .order_by(RankHistory.date.desc())  # Order by the timestamp in descending order
+            .first()  # Fetch the latest record
+        )
+        if curr_high != student.rating:
+            curr_rank = count
+            curr_high = student.rating
+            if latest_rank.rank != curr_rank or latest_rank.rating != curr_high:
+                newRank = RankHistory(student.id,curr_rank,curr_high)
+                db.session.add(newRank)
+                db.session.commit()
+        
+        
+        leaderboard.append({"placement": curr_rank, "student": student.username, "rating score":student.rating})
+        count += 1
+        if student.curr_rank != curr_rank:
+
+            student.curr_rank = curr_rank
+        if student.prev_rank == 0:
+            message = f'RANK : {student.curr_rank}. Congratulations on your first rank!'
+        elif student.curr_rank == student.prev_rank:
+            message = f'RANK : {student.curr_rank}. Well done! You retained your rank.'
+        elif student.curr_rank < student.prev_rank:
+            message = f'RANK : {student.curr_rank}. Congratulations! Your rank has went up.'
+        else:
+            message = f'RANK : {student.curr_rank}. Oh no! Your rank has went down.'
+        student.prev_rank = student.curr_rank
+        notification = Notification(student.id, message)
+        student.notifications.append(notification)
+
+        try:
+            db.session.add(student)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+
+    return leaderboard
+
 
 def display_rankings():
     students = get_all_students()
