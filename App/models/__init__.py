@@ -7,3 +7,4 @@ from .CompetitionTeam import *
 from .notification import *
 from .CompetitionResult import *
 from .TeamMember import *
+from .RankHistory import *

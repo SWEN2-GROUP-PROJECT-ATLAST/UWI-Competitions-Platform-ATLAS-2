@@ -14,20 +14,21 @@ user_views = Blueprint('user_views', __name__, template_folder='../templates')
 # def get_user_page():
 #     users = get_all_users()
 #     return render_template('users.html', users=users)
-"""
+
 @user_views.route('/api/users', methods=['GET'])
 def get_users_action():
     users = get_all_students_json()
     return jsonify(users)
 
-#@user_views.route('/api/users', methods=['POST'])
-#def create_user_endpoint():
-#    data = request.json
-#    response = create_user(data['username'], data['password'])
-#    if response:
-#        return (jsonify({'message': f"user created"}),201)
-#    return (jsonify({'error': f"error creating user"}),500)
-
+'''
+@user_views.route('/api/users', methods=['POST'])
+def create_user_endpoint():
+    data = request.json
+    response = create_user(data['username'], data['password'])
+    if response:
+        return (jsonify({'message': f"user created"}),201)
+    return (jsonify({'error': f"error creating user"}),500)
+'''
 @user_views.route('/host_join', methods=['POST'])
 def join_competition():
     data = request.json
@@ -59,13 +60,18 @@ def get_user_rankings():
     rankings = [u.to_dict() for u in users]
     return jsonify(rankings)
 
-@user_views.route('/users/competitions/<int:id>', methods = ['GET'])
-def get_user_comps(id):
-    data = request.form
-    # comps = get_user_competitions(data['id'])
-    comps = get_competition(id)
-    # userCompetitions =  [c.toDict() for c in comps]
-    return jsonify(comps)
+@user_views.route('/users/competitions/<string:username>', methods=['GET'])
+def get_user_comps(username):
+    # Call the display_student_info function with the provided username
+    profile_info = display_student_info(username)
+    
+    if not profile_info:
+        return jsonify({"error": f"User '{username}' not found or no competitions"}), 404
+    
+    # Return the student's profile information and competitions
+    return jsonify(profile_info), 200
+
+
 
 @user_views.route('/api/students', methods=['POST'])
 def create_student_endpoint():
@@ -91,4 +97,59 @@ def create_competition():
 def get_all_notifications():
     notifications = display_notifications()
     return jsonify(notifications)
-"""
+
+@user_views.route('/students/<string:username>/rank-history', methods=['GET'])
+def get_rank_history(username):
+    student = get_student_by_username(username)
+
+    if not student:
+        return jsonify({"error": f"Student '{username}' not found!"}), 404
+
+    rank_history = (
+        RankHistory.query
+        .filter_by(student_id=student.id)
+        .order_by(RankHistory.date.desc())
+        .all()
+    )
+
+    if not rank_history:
+        return jsonify({"message": f"No rank history found for student '{username}'!"}), 200
+
+    history_json = [rank.get_json() for rank in rank_history]
+
+    return jsonify({"rank_history": history_json}), 200
+
+
+from App.controllers.student import create_student
+
+@user_views.route('/signup_student', methods=['POST'])
+def signup_student():
+    # Parse the input data
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    # Validate required fields
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
+
+    # Call the create_student function
+    student = create_student(username, password)
+
+    if student:
+        return jsonify({'message': f'Student {student.username} created successfully!'}), 201
+    return jsonify({'error': 'Error creating student'}), 500
+
+
+@user_views.route('/login_refactored', methods=['POST'])
+def user_login_api_refactored():
+    data = request.json
+
+    # Call the jwt_authenticate function to check username and password
+    token = jwt_authenticate(data['username'], data['password'])
+    
+    if not token:
+        return jsonify(error='bad username or password given'), 401
+    
+    # If authentication is successful, return the access token
+    return jsonify(access_token=token)
