@@ -48,12 +48,12 @@ def logout_action():
 '''
 API Routes
 '''
-"""
+'''
 @auth_views.route('/api/users', methods=['GET'])
 def get_users_action():
     users = get_all_users_json()
     return jsonify(users)
-
+'''
 @auth_views.route('/api/users', methods=['POST'])
 def create_user_endpoint():
     data = request.json
@@ -74,7 +74,7 @@ def user_login_api():
 @jwt_required()
 def identify_user_action():
     return jsonify({'message': f"username: {jwt_current_user.username}, id : {jwt_current_user.id}"})
-"""
+
 
 @auth_views.route('/login', methods=['GET', 'POST'])
 def login():
