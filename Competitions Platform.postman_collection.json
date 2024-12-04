@@ -1,0 +1,900 @@
+{
+	"info": {
+		"_postman_id": "959d937b-e74c-4251-b70e-c70885ad8ea5",
+		"name": "Competitions Platform",
+		"description": "The headless API created for a competitions platform for COMP 3613 Assignment 1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "33339653"
+	},
+	"item": [
+		{
+			"name": "Sign Up / Create Student",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Student created successfully\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.message).to.include(\"created successfully\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error test if missing username or password\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (pm.response.code === 400) {\r",
+							"        pm.expect(jsonData.error).to.equal(\"Username and password are required\");\r",
+							"    }\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"john_doe\",   // New student's username\r\n  \"password\": \"secure_password\"   // New student's password\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/signup_student"
+			},
+			"response": []
+		},
+		{
+			"name": "Login User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200 on successful login\", function () {\r",
+							"    pm.expect(pm.response.code).to.eql(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains access token on successful login\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"access_token\");\r",
+							"    pm.expect(jsonData.access_token).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is returned on failed login\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (pm.response.code === 401) {\r",
+							"        pm.expect(jsonData).to.have.property(\"error\");\r",
+							"        pm.expect(jsonData.error).to.eql(\"bad username or password given\");\r",
+							"    }\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"james\",\r\n  \"password\": \"jamespass\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/login_refactored"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Moderator",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Moderator created test\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.message).to.include(\"created successfully\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error test if username and password are not provided\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (pm.response.code === 400) {\r",
+							"        pm.expect(jsonData.error).to.equal(\"Username and password are required\");\r",
+							"    }\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"newmoderator\",\r\n  \"password\": \"password123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/create_moderator"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Competition",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Competition created test\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.message).to.include(\"created successfully\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error test if missing fields\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (pm.response.code === 400) {\r",
+							"        pm.expect(jsonData.error).to.equal(\"All fields are required\");\r",
+							"    }\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"mod_name\": \"robert\",  \r\n  \"comp_name\": \"Math Competition 4.0\",  \r\n  \"date\": \"05-12-2024\",  \r\n  \"location\": \"Room 101\",  \r\n  \"level\": 5,  \r\n  \"max_score\": 100  \r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/create_competition_refactored"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Competition List",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 200\r",
+							"pm.test(\"Status code is 200\", () => {\r",
+							"  pm.expect(pm.response.code).to.eql(200);\r",
+							"});\r",
+							"\r",
+							"// Define the schema based on the Competition model\r",
+							"const schema = {\r",
+							"  \"type\": \"array\",\r",
+							"  \"items\": {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"      \"id\": {\r",
+							"        \"type\": \"integer\"\r",
+							"      },\r",
+							"      \"name\": {\r",
+							"        \"type\": \"string\"\r",
+							"      },\r",
+							"      \"date\": {\r",
+							"        \"type\": \"string\",\r",
+							"        \"pattern\": \"^[0-9]{2}-[0-9]{2}-[0-9]{4}$\" // Matches date format \"dd-mm-yyyy\"\r",
+							"      },\r",
+							"      \"location\": {\r",
+							"        \"type\": \"string\"\r",
+							"      },\r",
+							"      \"level\": {\r",
+							"        \"type\": \"number\"\r",
+							"      },\r",
+							"      \"max_score\": {\r",
+							"        \"type\": \"integer\"\r",
+							"      },\r",
+							"      \"moderators\": {\r",
+							"        \"type\": \"array\",\r",
+							"        \"items\": {\r",
+							"          \"type\": \"string\" // Assuming moderators is a list of usernames\r",
+							"        }\r",
+							"      },\r",
+							"      \"teams\": {\r",
+							"        \"type\": \"array\",\r",
+							"        \"items\": {\r",
+							"          \"type\": \"string\" // Assuming teams is a list of team names\r",
+							"        }\r",
+							"      }\r",
+							"    },\r",
+							"    \"required\": [\r",
+							"      \"id\",\r",
+							"      \"name\",\r",
+							"      \"date\",\r",
+							"      \"location\",\r",
+							"      \"level\",\r",
+							"      \"max_score\",\r",
+							"      \"moderators\",\r",
+							"      \"teams\"\r",
+							"    ]\r",
+							"  }\r",
+							"};\r",
+							"\r",
+							"// Validate the response against the schema\r",
+							"pm.test('Schema is valid', function () {\r",
+							"  pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": "{{host}}/competitions",
+				"description": "Gets a list of all the competitions added in json format."
+			},
+			"response": [
+				{
+					"name": "Get Competitions Example",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": "https://competitions-platform-5hrl.onrender.com/competitions"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 10 Oct 2023 20:01:09 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "CF-Ray",
+							"value": "814174226fb72263-MIA"
+						},
+						{
+							"key": "CF-Cache-Status",
+							"value": "DYNAMIC"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Vary",
+							"value": "Accept-Encoding"
+						},
+						{
+							"key": "x-render-origin-server",
+							"value": "gunicorn"
+						},
+						{
+							"key": "Server",
+							"value": "cloudflare"
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "br"
+						},
+						{
+							"key": "alt-svc",
+							"value": "h3=\":443\"; ma=86400"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"date\": \"Tue, 10 Oct 2023 19:46:22 GMT\",\n        \"hosts\": [],\n        \"id\": 1,\n        \"location\": \"UWI\",\n        \"name\": \"Walktime\",\n        \"participants\": []\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "Get All Users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {\r",
+							"  pm.expect(pm.response.code).to.eql(200);\r",
+							"});\r",
+							"\r",
+							"const schema = {\r",
+							"  \"type\": \"array\",\r",
+							"  \"items\": [\r",
+							"    {\r",
+							"      \"type\": \"object\",\r",
+							"      \"properties\": {\r",
+							"        \"id\": {\r",
+							"          \"type\": \"integer\"\r",
+							"        },\r",
+							"        \"username\": {\r",
+							"          \"type\": \"string\"\r",
+							"        }\r",
+							"      },\r",
+							"      \"required\": [\r",
+							"        \"id\",\r",
+							"        \"username\"\r",
+							"      ]\r",
+							"    }\r",
+							"  ]\r",
+							"}\r",
+							"\r",
+							"pm.test('Schema is valid', function() {\r",
+							"  pm.response.to.have.jsonSchema(schema);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{host}}/api/users",
+				"description": "﻿Gets a list of all users in JSON format"
+			},
+			"response": [
+				{
+					"name": "Get All Users Exmple",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": "https://competitions-platform-5hrl.onrender.com/api/users"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 10 Oct 2023 20:39:22 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "CF-Ray",
+							"value": "8141ac1d08de370c-MIA"
+						},
+						{
+							"key": "CF-Cache-Status",
+							"value": "DYNAMIC"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Vary",
+							"value": "Accept-Encoding"
+						},
+						{
+							"key": "x-render-origin-server",
+							"value": "gunicorn"
+						},
+						{
+							"key": "Server",
+							"value": "cloudflare"
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "br"
+						},
+						{
+							"key": "alt-svc",
+							"value": "h3=\":443\"; ma=86400"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"id\": 1,\n        \"username\": \"bob\"\n    },\n    {\n        \"id\": 2,\n        \"username\": \"nick\"\n    },\n    {\n        \"id\": 3,\n        \"username\": \"Robert\"\n    },\n    {\n        \"id\": 4,\n        \"username\": \"Samuel\"\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "Get User Competitions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {\r",
+							"  pm.expect(pm.response.code).to.eql(200);\r",
+							"});\r",
+							"\r",
+							"const schema = {\r",
+							"  type: \"object\",\r",
+							"  properties: {\r",
+							"    competitions: {\r",
+							"      type: \"array\",\r",
+							"      items: {\r",
+							"        type: \"string\"\r",
+							"      }\r",
+							"    },\r",
+							"    profile: {\r",
+							"      type: \"object\",\r",
+							"      properties: {\r",
+							"        id: { type: \"integer\" },\r",
+							"        username: { type: \"string\" },\r",
+							"        rating_score: { type: \"integer\" },\r",
+							"        curr_rank: { type: \"integer\" },\r",
+							"        prev_rank: { type: \"integer\" }\r",
+							"      },\r",
+							"      required: [\"id\", \"username\", \"rating_score\", \"curr_rank\", \"prev_rank\"]\r",
+							"    }\r",
+							"  },\r",
+							"  required: [\"competitions\", \"profile\"]\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema is valid\", function () {\r",
+							"  pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{host}}/users/competitions/{{username}}",
+				"description": "﻿Gets the details of all the competitions a particular user participated in"
+			},
+			"response": [
+				{
+					"name": "Get User Competitions Example",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": "https://competitions-platform-5hrl.onrender.com/users/competitions/2"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Wed, 11 Oct 2023 01:58:41 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "CF-Ray",
+							"value": "81437fd9bfdbda8f-MIA"
+						},
+						{
+							"key": "CF-Cache-Status",
+							"value": "DYNAMIC"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Vary",
+							"value": "Accept-Encoding"
+						},
+						{
+							"key": "x-render-origin-server",
+							"value": "gunicorn"
+						},
+						{
+							"key": "Server",
+							"value": "cloudflare"
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "br"
+						},
+						{
+							"key": "alt-svc",
+							"value": "h3=\":443\"; ma=86400"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"date\": \"Tue, 10 Oct 2023 19:46:22 GMT\",\n        \"hosts\": [],\n        \"id\": 1,\n        \"location\": \"UWI\",\n        \"name\": \"Walktime\",\n        \"participants\": [\n            {\n                \"comp_id\": 1,\n                \"id\": 1,\n                \"user_id\": 2\n            }\n        ]\n    },\n    {\n        \"date\": \"Wed, 11 Oct 2023 01:29:56 GMT\",\n        \"hosts\": [],\n        \"id\": 2,\n        \"location\": \"Port-of-Spain\",\n        \"name\": \"Web Wars\",\n        \"participants\": [\n            {\n                \"comp_id\": 2,\n                \"id\": 3,\n                \"user_id\": 2\n            }\n        ]\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "Get User Rank History",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200 or 404\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);\r",
+							"});\r",
+							"\r",
+							"if (pm.response.code === 200) {\r",
+							"    const response = pm.response.json();\r",
+							"\r",
+							"    if (response.message) {\r",
+							"        pm.test(\"No rank history message is present\", function () {\r",
+							"            pm.expect(response.message).to.be.a(\"string\");\r",
+							"        });\r",
+							"    } else {\r",
+							"        const schema = {\r",
+							"            type: \"object\",\r",
+							"            properties: {\r",
+							"                rank_history: {\r",
+							"                    type: \"array\",\r",
+							"                    items: {\r",
+							"                        type: \"object\",\r",
+							"                        properties: {\r",
+							"                            student_id: { type: \"integer\" },\r",
+							"                            rank: { type: \"integer\" },\r",
+							"                            date: { type: \"string\" }, // Remove date-time validation\r",
+							"                            rating: { type: \"integer\" }\r",
+							"                        },\r",
+							"                        required: [\"student_id\", \"rank\", \"date\"]\r",
+							"                    }\r",
+							"                }\r",
+							"            },\r",
+							"            required: [\"rank_history\"]\r",
+							"        };\r",
+							"\r",
+							"        pm.test(\"Schema is valid\", function () {\r",
+							"            pm.response.to.have.jsonSchema(schema);\r",
+							"        });\r",
+							"\r",
+							"        pm.test(\"Date is in valid RFC 1123 format\", function () {\r",
+							"            const rfc1123Pattern = /^[A-Za-z]{3}, \\d{2} [A-Za-z]{3} \\d{4} \\d{2}:\\d{2}:\\d{2} GMT$/;\r",
+							"            response.rank_history.forEach(item => {\r",
+							"                pm.expect(item.date).to.match(rfc1123Pattern);\r",
+							"            });\r",
+							"        });\r",
+							"\r",
+							"        pm.test(\"Rank history is not empty\", function () {\r",
+							"            pm.expect(response.rank_history).to.be.an(\"array\").that.is.not.empty;\r",
+							"        });\r",
+							"    }\r",
+							"} else {\r",
+							"    const errorResponse = pm.response.json();\r",
+							"\r",
+							"    pm.test(\"Error message is present\", function () {\r",
+							"        pm.expect(errorResponse.error).to.be.a(\"string\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{host}}/students/{{username}}/rank-history"
+			},
+			"response": []
+		},
+		{
+			"name": "Add Competition Results",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.not.be.error;\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Results added test\", function () {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql(\"Results added successfully!\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"mod_name\": \"robert\",\r\n    \"comp_name\": \"Code Wars\",\r\n    \"team_name\": \"Runtime Terrors\",\r\n    \"score\": 20\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/add_competition_results_refactored"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Competition Result",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);\r",
+							"});\r",
+							"\r",
+							"if (pm.response.code === 200) {\r",
+							"    const response = pm.response.json();\r",
+							"\r",
+							"    if (response.message) {\r",
+							"        pm.test(\"No teams found message is present\", function () {\r",
+							"            pm.expect(response.message).to.be.a(\"string\");\r",
+							"        });\r",
+							"    } else {\r",
+							"        const schema = {\r",
+							"            type: \"object\",\r",
+							"            properties: {\r",
+							"                leaderboard: {\r",
+							"                    type: \"array\",\r",
+							"                    items: {\r",
+							"                        type: \"object\",\r",
+							"                        properties: {\r",
+							"                            placement: { type: \"integer\" },\r",
+							"                            team: { type: \"string\" },\r",
+							"                            members: {\r",
+							"                                type: \"array\",\r",
+							"                                items: { type: \"string\" }\r",
+							"                            },\r",
+							"                            score: { type: \"integer\" }\r",
+							"                        },\r",
+							"                        required: [\"placement\", \"team\", \"members\", \"score\"]\r",
+							"                    }\r",
+							"                }\r",
+							"            },\r",
+							"            required: [\"leaderboard\"]\r",
+							"        };\r",
+							"\r",
+							"        pm.test(\"Schema is valid\", function () {\r",
+							"            pm.response.to.have.jsonSchema(schema);\r",
+							"        });\r",
+							"\r",
+							"        pm.test(\"Leaderboard is not empty\", function () {\r",
+							"            pm.expect(response.leaderboard).to.be.an(\"array\").that.is.not.empty;\r",
+							"        });\r",
+							"    }\r",
+							"} else {\r",
+							"    const errorResponse = pm.response.json();\r",
+							"\r",
+							"    pm.test(\"Error message is present\", function () {\r",
+							"        pm.expect(errorResponse.error).to.be.a(\"string\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{host}}/competitions/{{competition_name}}/results"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Competition Details",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {\r",
+							"  pm.expect(pm.response.code).to.eql(200);\r",
+							"});\r",
+							"\r",
+							"const schema = {\r",
+							"  type: \"object\",\r",
+							"  properties: {\r",
+							"    ID: { type: \"integer\" },\r",
+							"    Name: { type: \"string\" },\r",
+							"    Date: { type: \"string\" }, // Assuming the date is in string format\r",
+							"    Location: { type: \"string\" },\r",
+							"    Level: { type: \"number\" },\r",
+							"    \"Max Score\": { type: \"integer\" },\r",
+							"    Moderators: {\r",
+							"      type: \"array\",\r",
+							"      items: { type: \"string\" }\r",
+							"    },\r",
+							"    Teams: {\r",
+							"      type: \"array\",\r",
+							"      items: { type: \"string\" }\r",
+							"    }\r",
+							"  },\r",
+							"  required: [\"ID\", \"Name\", \"Date\", \"Location\", \"Level\", \"Max Score\", \"Moderators\", \"Teams\"]\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema is valid\", function () {\r",
+							"  pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{host}}/competitions_postman/1",
+				"description": "﻿Gets all the details for a particular competition"
+			},
+			"response": [
+				{
+					"name": "Get Comp Details Example",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": "https://competitions-platform-5hrl.onrender.com/competitions/1"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Wed, 11 Oct 2023 01:41:30 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "CF-Ray",
+							"value": "814366b10a0c21e7-MIA"
+						},
+						{
+							"key": "CF-Cache-Status",
+							"value": "DYNAMIC"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Vary",
+							"value": "Accept-Encoding"
+						},
+						{
+							"key": "x-render-origin-server",
+							"value": "gunicorn"
+						},
+						{
+							"key": "Server",
+							"value": "cloudflare"
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "br"
+						},
+						{
+							"key": "alt-svc",
+							"value": "h3=\":443\"; ma=86400"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"date\": \"Tue, 10 Oct 2023 19:46:22 GMT\",\n    \"hosts\": [],\n    \"id\": 1,\n    \"location\": \"UWI\",\n    \"name\": \"Walktime\",\n    \"participants\": [\n        {\n            \"comp_id\": 1,\n            \"id\": 1,\n            \"user_id\": 2\n        }\n    ]\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "https://8080-tramdeo868-uwicompetiti-0fjlg9b7rso.ws-us117.gitpod.io/",
+			"type": "default"
+		}
+	]
+}
