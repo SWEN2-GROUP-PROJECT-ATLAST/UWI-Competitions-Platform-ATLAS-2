@@ -76,35 +76,44 @@ def add_result(moderator_name, competition_name, team_name, score):
     # Step 1: Validate the moderator
     moderator = get_moderator_by_username(moderator_name)
     if not moderator:
+        print(f"Moderator '{moderator_name}' not found!")
         return None
 
     # Step 2: Validate the competition
     competition = Competition.query.filter_by(name=competition_name).first()
     if not competition:
+        print(f"Competition '{competition_name}' not found!")
         return None
 
     # Step 3: Check if the moderator is associated with the competition
     if moderator not in competition.moderators:
+        print(f"Moderator '{moderator_name}' is not associated with competition '{competition_name}'")
         return None
 
     # Step 4: Validate the team within the competition
     team = CompetitionTeam.query.filter_by(name=team_name, comp_id=competition.id).first()
     if not team:
+        print(f"Team '{team_name}' not found in competition '{competition_name}'")
         return None
 
     # Step 5: Check for existing result for the team in the same competition
     existing_result = CompetitionResult.query.filter_by(comp_team_id=team.id).first()
     if existing_result:
-        return None
+        print(f"Updating existing result for team '{team_name}' in competition '{competition_name}'")
+        existing_result.score = score  # Update the score
+        db.session.commit()
+        return existing_result  # Return the updated result
 
-    # Step 6: Add the competition result
+    # Step 6: Add the competition result if no existing result is found
     team.hasResult = True
     new_result = CompetitionResult(comp_team_id=team.id, score=score)
     db.session.add(new_result)
     db.session.add(team)
     db.session.commit()
-
+    print(f"Result added for team '{team_name}' with score {score}")
     return new_result
+
+
 
 
 def update_ratings(mod_name, comp_name):

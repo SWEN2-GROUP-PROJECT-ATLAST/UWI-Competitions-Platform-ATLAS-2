@@ -12,10 +12,12 @@ comp_views = Blueprint('comp_views', __name__, template_folder='../templates')
 ##return the json list of competitions fetched from the db
 @comp_views.route('/competitions', methods=['GET'])
 def get_competitions():
-    competitions = get_all_competitions_json()
-    return render_template('competitions.html', competitions=get_all_competitions(), user=current_user)
-    #return (jsonify(competitions),200) 
-"""
+    if request.headers.get('Accept') == 'application/json':  # Check if JSON is expected
+        competitions = get_all_competitions_json()
+        return jsonify(competitions), 200
+    else:
+        return render_template('competitions.html', competitions=get_all_competitions(), user=current_user)
+'''
 ##add new competition to the db
 @comp_views.route('/competitions', methods=['POST'])
 def add_new_comp():
@@ -24,7 +26,8 @@ def add_new_comp():
     if response:
         return (jsonify({'message': "Competition created!"}), 201)
     return (jsonify({'error': "Error creating competition"}),500)
-"""
+'''
+
 #create new comp
 @comp_views.route('/createcompetition', methods=['POST'])
 @login_required
@@ -193,11 +196,14 @@ def get_competitions_postman():
 
 @comp_views.route('/createcompetition_postman', methods=['POST'])
 def create_comp_postman():
+    print(f"Request Method: {request.method}")  # Log the request method
+    if request.method == 'GET':
+        return "GET method received but not supported", 405
     data = request.json
     response = create_competition('robert', data['name'], data['date'], data['location'], data['level'], data['max_score'])
     if response:
-        return (jsonify({'message': "Competition created!"}), 201)
-    return (jsonify({'error': "Error creating competition"}),500)
+        return jsonify({'message': "Competition created!"}), 201
+    return jsonify({'error': "Error creating competition"}), 500
 
 @comp_views.route('/competitions_postman/<int:id>', methods=['GET'])
 def competition_details_postman(id):
@@ -217,6 +223,18 @@ def competition_details_postman(id):
     leaderboard = display_competition_results(competition.name)
     return (jsonify(competition.toDict()),200)
 
+# Display Competition Result of given comp name
+@comp_views.route('/competitions/<string:name>/results', methods=['GET'])
+def get_competition_results(name):
+    leaderboard = display_competition_results(name)
+
+    if leaderboard is None:
+        return jsonify({"error": f"Competition '{name}' not found!"}), 404
+    elif len(leaderboard) == 0:
+        return jsonify({"message": f"No teams found for competition '{name}'!"}), 200
+
+    return jsonify({"leaderboard": leaderboard}), 200
+
 @comp_views.route('/add_results_postman/<string:comp_name>', methods=['POST'])
 def add_competition_results_postman(comp_name):
     competition = get_competition_by_name(comp_name)
@@ -231,3 +249,67 @@ def add_competition_results_postman(comp_name):
     if response:
         return (jsonify({'message': "Results added successfully!"}),201)
     return (jsonify({'error': "Error adding results!"}),500)
+
+
+from App.models import Moderator
+from App.controllers.moderator import create_moderator
+
+@comp_views.route('/create_moderator', methods=['POST'])
+def create_moderator_postman():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    # Ensure that both username and password are provided
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
+
+    mod = create_moderator(username, password)
+    if mod:
+        return jsonify({'message': f'Moderator {mod.username} created successfully!'}), 201
+    return jsonify({'error': 'Error creating moderator'}), 500
+
+
+from App.models import Competition
+from App.controllers.moderator import get_moderator_by_username
+from App.controllers.competition import create_competition
+
+@comp_views.route('/create_competition_refactored', methods=['POST'])
+def create_comp_refactored():
+    # Parse input data
+    data = request.json
+    mod_name = data.get('mod_name')
+    comp_name = data.get('comp_name')
+    date = data.get('date')
+    location = data.get('location')
+    level = data.get('level')
+    max_score = data.get('max_score')
+
+    # Validate required fields
+    if not mod_name or not comp_name or not date or not location or not level or not max_score:
+        return jsonify({'error': 'All fields are required'}), 400
+
+    # Call the create_competition function
+    competition = create_competition(mod_name, comp_name, date, location, level, max_score)
+
+    if competition:
+        return jsonify({'message': f'Competition {competition.name} created successfully!'}), 201
+    return jsonify({'error': 'Error creating competition'}), 500
+
+
+@comp_views.route('/add_competition_results_refactored', methods=['POST'])
+def add_comp_results():
+    data = request.json
+    # Validate that all necessary data is provided
+    if 'mod_name' not in data or 'comp_name' not in data or 'team_name' not in data or 'score' not in data:
+        return jsonify({'error': 'Missing data'}), 400
+
+    print(f"Received data: {data}")  # Debugging output
+
+    # Call the add_result method from the controller
+    response = add_result(data['mod_name'], data['comp_name'], data['team_name'], data['score'])
+
+    if response:
+        return jsonify({'message': "Results added successfully!"}), 201
+    return jsonify({'error': "Error adding results!"}), 500
+
